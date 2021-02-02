@@ -1,0 +1,122 @@
+#Teo Speece
+
+
+I found the Chinook database pretty interesting. Through playing around with the data the bands caught my eye especially some of the Rock bands. My first query was just to sort a table to just show songs by the Red Hot Chili Peppers. To do this I joined the tables: Genre, Track, and Album. To join I used GenreId, and AlbumId as primary keys. While looking at the results I noticed some of the weaknesses of using a relational database system like SQL. All of the results were from the Album “Californication” and in every row the Album name was repeated. It would helpful to be able to have one row for each Album to avoid repetition. In my next query, I grouped the sales by each country and found some cool results. The results showed that 49 different customers spent together thousands of dollars. Each customer made exactly 38 invoices which struck me as odd. With this query, I was able to find that the country with highest amount of purchases (sorted by total price) was the US followed by, Canada and France. The purchase amount was 334.62. In my last query, I joined the tables: Customer, Invoice, InvoiceLine, Track, and Genre to find out the top ten paying customers sorted from high to low. Helena Holy spent the most with 502.62 units of dollars which I assumed to be dollars. It was also interesting to see that the Helena while spending the most had a lower amount of variation of genres purchased compared to the other top 10. While I retrieved all the information I wanted to in my last query I found myself wondering if there was a more efficient program to run the query. The code used to run the query seemed to be lengthy for how simple the results seemed. I also questioned how finding this in a noSQL would differ especially because I joined 5 tables. While reflecting on the lab I thought about how all the tables were joined through transitively dependent keys and how code would differ in tables with more efficient normal forms. 
+			
+
+#Query 1
+
+select Album.Title as Album,Track.Name as Song,UnitPrice, Genre.Name,Composer 
+from Genre,Track,Album
+where Genre.GenreId = Track.GenreId AND Genre.GenreId = 1 and Album.AlbumId = Track.AlbumID and Composer = "Red Hot Chili Peppers";
+
++-----------------+-------------------+-----------+------+-----------------------+
+| Album           | Song              | UnitPrice | Name | Composer              |
++-----------------+-------------------+-----------+------+-----------------------+
+| Californication | Parallel Universe |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | Scar Tissue       |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | Otherside         |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | Get On Top        |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | Californication   |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | Easily            |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | Emit Remmus       |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | I Like Dirt       |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | This Velvet Glove |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | Purple Stain      |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | Right On Time     |      0.99 | Rock | Red Hot Chili Peppers |
+| Californication | Road Trippin'     |      0.99 | Rock | Red Hot Chili Peppers |
++-----------------+-------------------+-----------+------+-----------------------+ 
+
+#Query 2
+
+select BillingCountry,count(distinct C.CustomerID), count(Iv.InvoiceID), SUM(Total)
+from Customer C, Invoice I, InvoiceLine Iv
+where C.CustomerId = I.CustomerId and Iv.InvoiceId = I.InvoiceId
+group by BillingCountry;
+
++----------------+------------------------------+---------------------+------------+
+| BillingCountry | count(distinct I.CustomerID) | count(Iv.InvoiceID) | SUM(Total) |
++----------------+------------------------------+---------------------+------------+
+| Argentina      |                            1 |                  38 |     334.62 |
+| Australia      |                            1 |                  38 |     334.62 |
+| Austria        |                            1 |                  38 |     404.62 |
+| Belgium        |                            1 |                  38 |     334.62 |
+| Brazil         |                            5 |                 190 |    1677.10 |
+| Canada         |                            8 |                 304 |    2689.96 |
+| Chile          |                            1 |                  38 |     415.62 |
+| Czech Republic |                            2 |                  76 |     879.24 |
+| Denmark        |                            1 |                  38 |     334.62 |
+| Finland        |                            1 |                  38 |     350.62 |
+| France         |                            5 |                 190 |    1722.10 |
+| Germany        |                            4 |                 152 |    1392.48 |
+| Hungary        |                            1 |                  38 |     446.62 |
+| India          |                            2 |                  74 |     667.28 |
+| Ireland        |                            1 |                  38 |     446.62 |
+| Italy          |                            1 |                  38 |     334.62 |
+| Netherlands    |                            1 |                  38 |     352.62 |
+| Norway         |                            1 |                  38 |     362.62 |
+| Poland         |                            1 |                  38 |     334.62 |
+| Portugal       |                            2 |                  76 |     687.24 |
+| Spain          |                            1 |                  38 |     334.62 |
+| Sweden         |                            1 |                  38 |     340.62 |
+| United Kingdom |                            3 |                 114 |    1003.86 |
+| USA            |                           13 |                 494 |    4667.06 |
++----------------+------------------------------+---------------------+------------+
+24 rows in set (0.01 sec)
+
+
+#Query 3
+
+select FirstName, LastName, SUM(Total), Count(distinct G.GenreId)
+from Customer C, Invoice I, InvoiceLine Iv, Track T, Genre G
+where C.CustomerId = I.CustomerId and Iv.InvoiceId = I.InvoiceId and T.TrackId = Iv.TrackId and G.GenreId = T.GenreId
+Group by C.CustomerID
+Order by sum(Total) desc
+limit 10;
+
++------------+--------------+------------+---------------------------+
+| FirstName  | LastName     | SUM(Total) | Count(distinct G.GenreId) |
++------------+--------------+------------+---------------------------+
+| Helena     | Holý         |     502.62 |                         9 |
+| Richard    | Cunningham   |     474.62 |                         7 |
+| Hugh       | O'Reilly     |     446.62 |                         8 |
+| Ladislav   | Kovács       |     446.62 |                        11 |
+| Luis       | Rojas        |     415.62 |                        12 |
+| Astrid     | Gruber       |     404.62 |                         9 |
+| Victor     | Stevens      |     404.62 |                         8 |
+| Fynn       | Zimmermann   |     388.62 |                        10 |
+| Frank      | Ralston      |     378.62 |                        10 |
+| František  | Wichterlová  |     376.62 |                         8 |
++------------+--------------+------------+---------------------------+
+10 rows in set (0.01 sec)
+
+
+#Mongo
+I have learned how to:
+- create documents, insert values into the documents and then insert them to a collection.
+
+- manipulate a cursor object and store results under a variable
+
+- compare values using expressions equivalent to =, >, >=, <, <=. new code: $eq, $gt, $gte, *lt, and $lte  
+
+
+The following procedures let you manipulate a cursor object as if it were an array. We’ll store the results from the query in a variable, d.
+
+
+#positives and negatives based on what I see and have read
+
++:
+non relational databases are setup in a way where joins aren't needed as much
+* polymorphism is easier
+* less repitition, not as much duplicates as in relational databases
+* can use lists
+* faster than SQL
+* can easily store and combine any type of data
+
+
+-:
+* joins aren't possible 
+* less queries can be made
+* there is a memory limitation
+
+

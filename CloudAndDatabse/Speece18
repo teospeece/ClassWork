@@ -1,0 +1,60 @@
+# Teo ssSpeece 
+
+1.
+a.
+%sql
+select origin, count(*) as TotalDepartures from flights
+group by origin
+order by TotalDepartures DESC
+LIMIT 5
+
+Origin	TotalDepartures
+ATL		8578055
+ORD		8514831
+DFW		7408484
+LAX		5413834
+DEN		4773801
+
+b.
+%sql
+select dest, count(*) as TotalDelayed from flights
+where year >= 2005 and year <= 2015 and depdelay > 15
+group by dest
+order by TotalDelayed DESC
+LIMIT 5
+
+dest▼	TotalDelayed▼
+ATL		692440
+ORD		673881
+DFW		457097
+DEN		383177
+LAX		372679
+
+c.
+origin▼ TotalCancellations▼
+ORD		51731
+DFW		33233
+ATL		27369
+LGA		23101
+EWR		21994
+
+
+
+2. Questions from the Reading.
+
+a. What is Spark?
+
+Spark is a general-purpose data processing engine, suitable for use in a wide range of circumstances. The main reasons Spark is popular are becasue of its speed, simplicity, and support for a variety of languages.
+
+
+b. How is Spark different than Hadoop?
+
+Spark doesn't store the data it reads leading to increased performance. Spark works directly from memory.
+
+c. What similarities do Hadoop and Spark share? 
+
+Both process data through multiple nodes. (Extract pull and load)
+
+d. Is Spark a replacement for Hadoop? Explain.
+
+No. currently hadoop still provides benifits not seen as well with spark. They can be run together often times. When run together hadoop gives spark data security and recovery capabilities.
